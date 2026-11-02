@@ -5,7 +5,7 @@ Run from any working directory:
     python generate_report.py
 
 The script does not retrain, delete logs, or create execution screenshots.
-It requires an existing user-supplied terminal screenshot and checks saved
+It requires genuine user-supplied terminal/code screenshots and checks saved
 reproducibility evidence before creating the report.
 """
 
@@ -115,12 +115,7 @@ def read_config(path: Path) -> dict:
 
 def require_valid_image(path: Path, label: str) -> tuple[int, int]:
     if not path.is_file():
-        raise FileNotFoundError(
-            f"Missing {label}: {path}\n"
-            "Save a genuine VS Code terminal screenshot to "
-            "report_assets/actual_terminal_screenshot.png, or pass "
-            "--screenshot with its existing file path."
-        )
+        raise FileNotFoundError(f"Missing {label}: {path}")
     try:
         with PILImage.open(path) as im:
             im.verify()
@@ -214,8 +209,18 @@ def collect_evidence(root: Path, screenshot_override: Path | None) -> dict:
         raise ValueError(f"Run prediction counts differ: {count1} vs {count2}")
     diagram = report_assets / "pipeline_diagram.png"
     screenshot = (screenshot_override or report_assets / "actual_terminal_screenshot.png").resolve()
+    code_screenshot = (report_assets / "actual_code_screenshot.png").resolve()
+    if not code_screenshot.is_file():
+        raise FileNotFoundError(
+            f"Missing genuine source-code screenshot: {code_screenshot}. "
+            "Open src/train.py in VS Code, show the build_pipeline() function, "
+            "capture that window with Win+Shift+S, and save it as "
+            "report_assets/actual_code_screenshot.png. "
+            "Do not make or substitute a simulated code screenshot."
+        )
     require_valid_image(diagram, "pipeline diagram")
-    require_valid_image(screenshot, "terminal screenshot")
+    require_valid_image(screenshot, "genuine terminal screenshot")
+    require_valid_image(code_screenshot, "genuine source-code screenshot")
     manifest = read_json(report_assets / 'evidence_manifest.json', required_keys=('sources_sha256', 'figures'))
     if manifest['figures'] != list(PLOT_NAMES):
         raise ValueError('Evidence manifest does not match required genuine plot list; rerun generate_evidence_plots.py')
@@ -230,6 +235,7 @@ def collect_evidence(root: Path, screenshot_override: Path | None) -> dict:
         "feature": feature, "pred_count": count1, "pred_sample": sample,
         "predictions_consistent": predictions_consistent,
         "diagram": diagram, "screenshot": screenshot,
+        "code_screenshot": code_screenshot,
     }
 
 
@@ -473,13 +479,19 @@ def build_report(root: Path, evidence: dict, output_file: Path) -> None:
         "The model and fitted preprocessing pipeline are stored in models/model.joblib."
     )
 
+    # Real implementation evidence, captured by the student from the source file.
+    figure(evidence["code_screenshot"], 2.25 * inch,
+           "Figure 2. Genuine VS Code screenshot of the train.py Pipeline implementation")
+
+    # Separate Task 4 so all evaluation rows have enough room on one page.
+    story.append(PageBreak())
     head("Task 4 - Execution and Model Evaluation")
     para(
         "The full workflow is executed with <b>python src/main.py</b> from the exp-6 "
         "directory. Saved results from two runs are available in outputs/. "
         "The figure below is the supplied terminal execution screenshot."
     )
-    figure(evidence["screenshot"], 2.75 * inch, "Figure 2. Terminal execution evidence")
+    figure(evidence["screenshot"], 2.20 * inch, "Figure 3. Genuine terminal execution evidence")
     metrics_rows = [["Metric", "Run 1 value", "Meaning"]]
     meanings = {
         "accuracy": "Overall proportion classified correctly",
@@ -490,10 +502,15 @@ def build_report(root: Path, evidence: dict, output_file: Path) -> None:
     }
     for key in METRIC_KEYS:
         metrics_rows.append([METRIC_NAMES[key], f"{values[key]:.4f}", meanings[key]])
-    story.append(make_table(metrics_rows, [1.20 * inch, 1.05 * inch, 3.92 * inch], small))
-    story.append(Spacer(1, 7))
-    figure(chart, 2.55 * inch, "Figure 3. Recorded evaluation metrics for Runs 1 and 2")
+    # One inseparable table: the ROC-AUC row cannot be orphaned on another page.
+    story.append(KeepTogether([
+        make_table(metrics_rows, [1.20 * inch, 1.05 * inch, 3.92 * inch], small),
+        Spacer(1, 7),
+    ]))
+    figure(chart, 2.30 * inch, "Figure 4. Recorded evaluation metrics for Runs 1 and 2")
 
+    # Start the reproducibility results on a fresh page; do not split its table.
+    story.append(PageBreak())
     head("Task 5 - Reproducibility and Prediction")
     para(
         f"Two runs used the saved dataset and configuration with random_state = "
@@ -509,7 +526,9 @@ def build_report(root: Path, evidence: dict, output_file: Path) -> None:
             METRIC_NAMES[name], f"{values[name]:.6f}", f"{run2[name]:.6f}",
             f"{d['difference']:.6f}", "Yes" if d["consistent"] else "No",
         ])
-    story.append(make_table(repeated, [1.10*inch, 1.04*inch, 1.04*inch, 1.36*inch, 0.66*inch], small))
+    story.append(KeepTogether([
+        make_table(repeated, [1.10*inch, 1.04*inch, 1.04*inch, 1.36*inch, 0.66*inch], small)
+    ]))
     story.append(Spacer(1, 7))
     para(
         f"<b>Prediction:</b> {evidence['pred_count']} held-out test records were predicted "
@@ -524,6 +543,8 @@ def build_report(root: Path, evidence: dict, output_file: Path) -> None:
         ])
     story.append(make_table(sample_rows, [1.05*inch, .66*inch, 1.12*inch, 1.12*inch, 1.15*inch], small))
 
+    # Do not strand the Task 6 heading at the bottom of a crowded page.
+    story.append(PageBreak())
     head("Task 6 - Documentation, Observations and Result")
     para(
         f"<b>Public GitHub repository:</b> "
@@ -551,6 +572,25 @@ def build_report(root: Path, evidence: dict, output_file: Path) -> None:
         )
     else:
         para("<b>Execution log:</b> no standalone pipeline_run.log was included in the supplied project copy.")
+    head("Actual Issues Encountered and Corrective Actions")
+    para(
+        "The verified final ML runs completed successfully. The following issues "
+        "occurred during project setup and report preparation, not as unverified "
+        "model-training failures:"
+    )
+    issue_rows = [
+        ["Observed issue", "Corrective action"],
+        ["ReportLab was missing when the maintenance dependency check ran.",
+         "Installed ReportLab in the Python environment; report generation then succeeded."],
+        ["The report could not finalize when the required genuine terminal screenshot was absent.",
+         "Captured and saved the actual terminal screenshot in report_assets."],
+        ["VS Code reported eight unresolved ReportLab imports while Python 3.12 was selected.",
+         "Selected the installed Python 3.14 interpreter; the eight warnings disappeared."],
+        ["An earlier report split the evaluation-metrics table across two pages.",
+         "Updated ReportLab pagination to keep all five metric rows together."],
+    ]
+    story.append(make_table(issue_rows, [2.85 * inch, 3.32 * inch], small))
+    story.append(Spacer(1, 7))
     para(
         "<b>Result:</b> The reusable end-to-end ML pipeline covers dataset loading, "
         "cleaning, feature engineering, training, evaluation, saved-model inference "
@@ -560,6 +600,7 @@ def build_report(root: Path, evidence: dict, output_file: Path) -> None:
     # Visual evidence appendix: every plot is derived from exact saved experiment files.
     # No test ground-truth labels exist in the predictions.csv, so no fabricated
     # confusion matrix, ROC curve or precision-recall curve is included.
+    story.append(PageBreak())
     head("Evidence Figures - Dataset and Inference")
     para(
         "The following figures were constructed exclusively from the saved experiment "
@@ -568,27 +609,27 @@ def build_report(root: Path, evidence: dict, output_file: Path) -> None:
         "No fabricated values or simulated screenshots have been used."
     )
     figure(assets / PLOT_NAMES[0], 2.8 * inch,
-           "Figure 4. Actual target-class distribution across all original dataset records")
+           "Figure 5. Actual target-class distribution across all original dataset records")
     para(
-        "Figure 4 uses outputs/run_1_dataset_inspection.json; these are actual "
+        "Figure 5 uses outputs/run_1_dataset_inspection.json; these are actual "
         "dataset target labels, not model predictions."
     )
     figure(assets / PLOT_NAMES[2], 2.8 * inch,
-           "Figure 5. Predicted classes for the held-out test records")
+           "Figure 6. Predicted classes for the held-out test records")
     para(
-        "Figure 5 uses outputs/run_1_predictions.csv. Predicted-class totals are not "
+        "Figure 6 uses outputs/run_1_predictions.csv. Predicted-class totals are not "
         "the same as ground-truth class totals or classification correctness."
     )
     story.append(PageBreak())
     head("Evidence Figures - Confidence and Features")
     figure(assets / PLOT_NAMES[3], 2.8 * inch,
-           "Figure 6. Distribution of saved prediction confidence scores")
+           "Figure 7. Distribution of saved prediction confidence scores")
     para(
         "Each bar represents an interval of confidence values read from the saved prediction CSV, "
         "grouped by the predicted class. Confidence is not a measure of correctness."
     )
     figure(assets / PLOT_NAMES[4], 3.0 * inch,
-           "Figure 7. Top 12 impurity-based feature importances from the fitted model")
+           "Figure 8. Top 12 impurity-based feature importances from the fitted model")
     para(
         "These feature importances are extracted from the trained Random Forest "
         "inside models/model.joblib. They do not establish causal relationships."
@@ -596,7 +637,7 @@ def build_report(root: Path, evidence: dict, output_file: Path) -> None:
     story.append(PageBreak())
     head("Evidence Figures - Reproducibility")
     figure(assets / PLOT_NAMES[5], 3.0 * inch,
-           "Figure 8. Cross-run agreement between saved prediction classes")
+           "Figure 9. Cross-run agreement between saved prediction classes")
     para(
         "The matrix compares Run 1 predictions with Run 2 predictions using aligned "
         "record IDs; it is <b>not a confusion matrix against ground-truth test labels</b>."
@@ -661,7 +702,7 @@ def main() -> int:
         LOG.error("Report generation failed: %s", exc)
         return 1
     print(f"REPORT GENERATED: {output}")
-    print('VERIFIED VISUAL FIGURES IN PDF: 6 (plus pipeline diagram and real screenshot)')
+    print('VERIFIED VISUAL FIGURES IN PDF: 6 (plus pipeline diagram, real code screenshot and real terminal screenshot)')
     print(f"Student: {STUDENT_NAME} | Reg. No.: {STUDENT_REG} | Section: {STUDENT_SECTION}")
     print(f"Experiment date: {EXPERIMENT_DATE}")
     print(f"Public repository: {read_repository_url(root)}")
