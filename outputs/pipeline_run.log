@@ -1,0 +1,64 @@
+2026-11-02 21:14:43,218 | INFO | Configuration loaded from C:\Users\kasya\OneDrive\Documents\Experiment-6-MLOPS\exp-6\config\config.yaml
+2026-11-02 21:14:43,219 | INFO | === Reproducibility Run 1 ===
+2026-11-02 21:14:43,219 | INFO | Task 1: Dataset Preparation
+2026-11-02 21:14:43,249 | INFO | Loaded dataset: 569 samples, 30 features
+2026-11-02 21:14:43,255 | INFO | Cleaning report: {"missing_values_before": 0, "missing_values_after": 0, "duplicate_rows_removed": 0, "final_n_samples": 569}
+2026-11-02 21:14:43,349 | INFO | Train/test split: (455, 30) / (114, 30)
+2026-11-02 21:14:43,349 | INFO | Feature Engineering
+2026-11-02 21:14:43,352 | INFO | Transformations: ['Cast all features to float32']
+2026-11-02 21:14:43,352 | INFO | Model Training
+2026-11-02 21:14:43,635 | INFO | Model Evaluation
+2026-11-02 21:14:43,676 | INFO | Evaluation metrics: {"accuracy": 0.9473684210526315, "precision": 0.9583333333333334, "recall": 0.9583333333333334, "f1": 0.9583333333333334, "roc_auc": 0.9930555555555556}
+2026-11-02 21:14:43,737 | INFO | Saved model to C:\Users\kasya\OneDrive\Documents\Experiment-6-MLOPS\exp-6\models/model.joblib
+2026-11-02 21:14:43,737 | INFO | Prediction
+2026-11-02 21:14:43,795 | INFO | Saved 114 predictions to C:\Users\kasya\OneDrive\Documents\Experiment-6-MLOPS\exp-6\outputs/run_1_predictions.csv
+2026-11-02 21:14:43,795 | INFO | Pipeline completed in 0.5762 seconds
+2026-11-02 21:14:43,795 | INFO | === Reproducibility Run 2 ===
+2026-11-02 21:14:43,795 | INFO | Task 1: Dataset Preparation
+2026-11-02 21:14:43,804 | INFO | Loaded dataset: 569 samples, 30 features
+2026-11-02 21:14:43,809 | INFO | Cleaning report: {"missing_values_before": 0, "missing_values_after": 0, "duplicate_rows_removed": 0, "final_n_samples": 569}
+2026-11-02 21:14:43,812 | INFO | Train/test split: (455, 30) / (114, 30)
+2026-11-02 21:14:43,812 | INFO | Feature Engineering
+2026-11-02 21:14:43,813 | INFO | Transformations: ['Cast all features to float32']
+2026-11-02 21:14:43,814 | INFO | Model Training
+2026-11-02 21:14:44,065 | INFO | Model Evaluation
+2026-11-02 21:14:44,099 | INFO | Evaluation metrics: {"accuracy": 0.9473684210526315, "precision": 0.9583333333333334, "recall": 0.9583333333333334, "f1": 0.9583333333333334, "roc_auc": 0.9930555555555556}
+2026-11-02 21:14:44,145 | INFO | Saved model to C:\Users\kasya\OneDrive\Documents\Experiment-6-MLOPS\exp-6\models/model.joblib
+2026-11-02 21:14:44,145 | INFO | Prediction
+2026-11-02 21:14:44,202 | INFO | Saved 114 predictions to C:\Users\kasya\OneDrive\Documents\Experiment-6-MLOPS\exp-6\outputs/run_2_predictions.csv
+2026-11-02 21:14:44,202 | INFO | Pipeline completed in 0.4068 seconds
+2026-11-02 21:14:44,203 | INFO | Reproducibility comparison: {
+  "accuracy": {
+    "run_1": 0.9473684210526315,
+    "run_2": 0.9473684210526315,
+    "difference": 0.0,
+    "consistent": true
+  },
+  "precision": {
+    "run_1": 0.9583333333333334,
+    "run_2": 0.9583333333333334,
+    "difference": 0.0,
+    "consistent": true
+  },
+  "recall": {
+    "run_1": 0.9583333333333334,
+    "run_2": 0.9583333333333334,
+    "difference": 0.0,
+    "consistent": true
+  },
+  "f1": {
+    "run_1": 0.9583333333333334,
+    "run_2": 0.9583333333333334,
+    "difference": 0.0,
+    "consistent": true
+  },
+  "roc_auc": {
+    "run_1": 0.9930555555555556,
+    "run_2": 0.9930555555555556,
+    "difference": 0.0,
+    "consistent": true
+  },
+  "overall_consistent": true
+}
+2026-11-02 21:14:44,204 | INFO | Overall consistent: True
+2026-11-02 21:14:44,204 | INFO | End-to-end Experiment 6 pipeline complete.

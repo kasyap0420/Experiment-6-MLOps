@@ -1,0 +1,39 @@
+{
+  "evidence_policy": "Existing saved Experiment 6 outputs and fitted model only; no synthetic or assumed values",
+  "sources_sha256": {
+    "outputs/run_1_dataset_inspection.json": "fa5d503668ce7c038ba9589347cf15f5ecf77226540f0f47e2d10b25ce82ab02",
+    "outputs/run_1_metrics.json": "29c39c420c69198905fcc907ff7259714988f4fab3e432bf221bf52e6f9b9538",
+    "outputs/run_2_metrics.json": "29c39c420c69198905fcc907ff7259714988f4fab3e432bf221bf52e6f9b9538",
+    "outputs/reproducibility_comparison.json": "7663a90ecd3840cb53bb967446104c125e753032387912c11a33240431d589b8",
+    "outputs/run_1_predictions.csv": "5ea3c4c983f43ac5c2ed505c0cc5e4f7b06ef6fb8cf708ffbc65064fd0658fd6",
+    "outputs/run_2_predictions.csv": "8d95bad60afe6ca5c28d8f5ebcc5381e2742cd4d62026ca99e01cc360d15268f",
+    "models/model.joblib": "120ce4e03aedc9ff4ae1bbcc394fcc78809479b05902d0b4a7aa4b67e4b61432"
+  },
+  "figures": [
+    "01_dataset_class_balance.png",
+    "02_run_metrics_comparison.png",
+    "03_predicted_class_counts.png",
+    "04_prediction_confidence_hist.png",
+    "05_feature_importances.png",
+    "06_run_to_run_agreement.png"
+  ],
+  "n_dataset": 569,
+  "n_predictions_run_1": 114,
+  "n_predictions_run_2": 114,
+  "class_distribution": {
+    "1": 357,
+    "0": 212
+  },
+  "agreement_matrix": [
+    [
+      42,
+      0
+    ],
+    [
+      0,
+      72
+    ]
+  ],
+  "positive_class_for_metrics": "benign (class 1)",
+  "limitations": "Prediction CSV does not contain ground-truth test labels or both class probabilities; therefore no confusion matrix or ROC/PR curve was constructed."
+}

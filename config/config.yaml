@@ -1,0 +1,31 @@
+# Experiment 6 - End-to-End ML Pipeline Configuration
+dataset:
+  name: breast_cancer
+  source: sklearn
+target_column: target
+test_size: 0.2
+random_state: 42
+stratify: true
+
+preprocessing:
+  imputer_strategy: median
+  scaler: standard
+
+model:
+  name: random_forest
+  n_estimators: 200
+  random_state: 42
+
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1
+    - roc_auc
+
+paths:
+  dataset: data/
+  models: models/
+  outputs: outputs/
+  config: config/

@@ -1,0 +1,33 @@
+{
+  "accuracy": {
+    "run_1": 0.9473684210526315,
+    "run_2": 0.9473684210526315,
+    "difference": 0.0,
+    "consistent": true
+  },
+  "precision": {
+    "run_1": 0.9583333333333334,
+    "run_2": 0.9583333333333334,
+    "difference": 0.0,
+    "consistent": true
+  },
+  "recall": {
+    "run_1": 0.9583333333333334,
+    "run_2": 0.9583333333333334,
+    "difference": 0.0,
+    "consistent": true
+  },
+  "f1": {
+    "run_1": 0.9583333333333334,
+    "run_2": 0.9583333333333334,
+    "difference": 0.0,
+    "consistent": true
+  },
+  "roc_auc": {
+    "run_1": 0.9930555555555556,
+    "run_2": 0.9930555555555556,
+    "difference": 0.0,
+    "consistent": true
+  },
+  "overall_consistent": true
+}

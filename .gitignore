@@ -1,0 +1,19 @@
+# Local development environment and generated Python caches
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.vscode/
+.idea/
+.pytest_cache/
+
+# Local backups, temporary reports, test renders, and archives
+*.backup.py
+*.previous.py
+._exp6_report_*.pdf
+render/
+*.zip
+
+# OS-specific files
+.DS_Store
+Thumbs.db
